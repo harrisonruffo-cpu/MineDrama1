@@ -1,0 +1,6 @@
+{
+  "name": "Dono do Morro",
+  "description": "Aplicativo de episódios da série Dono do Morro com link camuflado para assistir.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
