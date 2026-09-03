@@ -26,24 +26,29 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
-          cache: 'gradle'
 
-      - name: Setup Android SDK
+      - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Accept Android SDK Licenses
+      - name: Accept Android SDK Licenses & Install Components
         run: |
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;36.0.0" || true
 
-      - name: Prepare environment configuration
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.3.1'
+
+      - name: Prepare environment configuration and Keystore
         run: |
           touch .env
           echo "GEMINI_API_KEY=" >> .env
           if [ -f "debug.keystore.base64" ]; then
             base64 -d debug.keystore.base64 > debug.keystore 2>/dev/null || base64 --decode debug.keystore.base64 > debug.keystore 2>/dev/null || true
           fi
-          if [ ! -f "debug.keystore" ]; then
-            echo "Generating debug keystore..."
+          if [ ! -s "debug.keystore" ]; then
+            echo "Generating fallback debug keystore..."
             keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
           fi
           mkdir -p ~/.android
@@ -54,16 +59,16 @@ jobs:
 
       - name: Build APK with Gradle
         run: |
-          ./gradlew assembleDebug --no-daemon --stacktrace --no-configuration-cache
+          gradle assembleDebug --no-daemon --stacktrace -Dorg.gradle.configuration-cache=false
 
       - name: Locate and copy APK artifact
         run: |
           mkdir -p build_output
-          find app/build/outputs/apk -name "*.apk" -exec cp {} build_output/dono-do-morro-v1.1.6.apk \;
+          find app/build/outputs/apk -type f -name "*.apk" -exec cp {} build_output/dono-do-morro-v1.1.6.apk \;
           if [ ! -f "build_output/dono-do-morro-v1.1.6.apk" ]; then
-            find . -name "*.apk" -exec cp {} build_output/dono-do-morro-v1.1.6.apk \;
+            find . -type f -name "*.apk" -exec cp {} build_output/dono-do-morro-v1.1.6.apk \;
           fi
-          echo "Generated APK files:"
+          echo "Generated APK files in build_output:"
           ls -lh build_output/
 
       - name: Upload APK Artifact
