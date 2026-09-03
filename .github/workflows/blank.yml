@@ -2,11 +2,11 @@ name: Build APK 1.1.6
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "master" ]
     tags:
       - 'v*'
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "master" ]
   workflow_dispatch:
 
 permissions:
@@ -26,6 +26,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
+          cache: 'gradle'
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
@@ -33,11 +34,6 @@ jobs:
       - name: Accept Android SDK Licenses
         run: |
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses || true
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '9.3.1'
 
       - name: Prepare environment configuration
         run: |
@@ -58,11 +54,7 @@ jobs:
 
       - name: Build APK with Gradle
         run: |
-          if [ -f "./gradlew" ]; then
-            ./gradlew assembleDebug --stacktrace --no-daemon
-          else
-            gradle assembleDebug --stacktrace --no-daemon
-          fi
+          ./gradlew assembleDebug --no-daemon --stacktrace --no-configuration-cache
 
       - name: Locate and copy APK artifact
         run: |
@@ -81,7 +73,7 @@ jobs:
           path: build_output/*.apk
           retention-days: 30
 
-      - name: Create GitHub Release (if tag pushed)
+      - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
