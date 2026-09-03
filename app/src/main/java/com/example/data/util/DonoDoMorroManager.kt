@@ -6,72 +6,99 @@ import com.example.data.model.Episode
 
 object DonoDoMorroManager {
     private const val PREFS_NAME = "dono_do_morro_prefs"
-    private const val KEY_CUSTOM_EPISODE_1 = "custom_episode_1_url"
 
-    // Link padrão do Episódio 1 com suporte a YouTube ou MP4 camuflado
-    const val DEFAULT_EPISODE_1_URL = "https://youtu.be/u0WXCHgZxaY?is=bvomW3X72476KQDG"
+    // Link oficial da capa fornecido pelo usuário (Google Drive)
+    const val DEFAULT_COVER_DRIVE_VIEW_URL = "https://drive.google.com/file/d/1ngEUH5l0R0c58zZ-y26kTDqBwFv5dr64/view?usp=drivesdk"
+    // URL direta para imagem no Coil / Glide
+    const val DEFAULT_COVER_IMAGE_URL = "https://lh3.googleusercontent.com/u/0/d/1ngEUH5l0R0c58zZ-y26kTDqBwFv5dr64"
 
-    private fun getPrefs(context: Context): SharedPreferences {
-        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-    }
+    // Links camuflados dos Episódios
+    const val EPISODE_1_URL = "https://youtu.be/u0WXCHgZxaY?is=bvomW3X72476KQDG"
+    const val EPISODE_2_URL = "https://youtu.be/nfVYJ6jFvRA?is=u2IbhITwKelIq86j"
+    const val EPISODE_3_URL = "https://youtu.be/nfVYJ6jFvRA?is=wekmdgSbpDXpLgtN"
+    const val EPISODE_4_URL = "https://youtu.be/MjHWLBEyPuA?is=AMmTuy78QirdIDW-"
+    const val EPISODE_5_URL = "https://youtu.be/okmDuMzlbWM?is=VqqZ-DOp4yRlBz_a"
+    const val EPISODE_6_URL = "https://youtu.be/-dQl0VDN07c?is=-UeFZt_oH8dgm4Jf"
+    const val EPISODE_7_URL = "https://youtu.be/4KE0NczMVwI?is=Wex5GdY-Z91WjSLu"
 
-    fun getEpisode1Url(context: Context): String {
-        return getPrefs(context).getString(KEY_CUSTOM_EPISODE_1, DEFAULT_EPISODE_1_URL)
-            ?: DEFAULT_EPISODE_1_URL
-    }
-
-    fun setEpisode1Url(context: Context, url: String) {
-        getPrefs(context).edit().putString(KEY_CUSTOM_EPISODE_1, url.trim()).apply()
-    }
-
-    fun resetEpisode1Url(context: Context) {
-        getPrefs(context).edit().remove(KEY_CUSTOM_EPISODE_1).apply()
-    }
-
-    fun isCustomUrlActive(context: Context): Boolean {
-        val current = getEpisode1Url(context)
-        return current.isNotBlank() && current != DEFAULT_EPISODE_1_URL
-    }
-
-    fun getEpisodes(context: Context): List<Episode> {
-        val ep1Url = getEpisode1Url(context)
+    fun getEpisodes(context: Context? = null): List<Episode> {
         return listOf(
             Episode(
                 id = "dono_morro_ep_1",
                 episodeNumber = 1,
-                title = "O Primeiro Olhar",
-                videoUrl = ep1Url,
-                duration = "1:45",
+                title = "Episódio 1",
+                videoUrl = EPISODE_1_URL,
+                duration = "1º Episódio",
                 isUnlocked = true,
-                synopsis = "A chegada ao morro e o primeiro encontro tenso que vai mudar o destino de todos.",
-                badge = "Link Camuflado"
+                synopsis = "A chegada ao morro e o primeiro encontro tenso que inicia a história.",
+                badge = "Episódio 1",
+                coverUrl = DEFAULT_COVER_IMAGE_URL
             ),
             Episode(
                 id = "dono_morro_ep_2",
                 episodeNumber = 2,
-                title = "Encontro Inesperado",
-                videoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-                duration = "2:10",
+                title = "Episódio 2",
+                videoUrl = EPISODE_2_URL,
+                duration = "2º Episódio",
                 isUnlocked = true,
-                synopsis = "Alianças improváveis são forjadas sob a pressão das cobranças no topo do morro."
+                synopsis = "Novas alianças e segredos começam a ser revelados.",
+                badge = "Episódio 2",
+                coverUrl = DEFAULT_COVER_IMAGE_URL
             ),
             Episode(
                 id = "dono_morro_ep_3",
                 episodeNumber = 3,
-                title = "Acordo Perigoso",
-                videoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-                duration = "3:20",
+                title = "Episódio 3",
+                videoUrl = EPISODE_3_URL,
+                duration = "3º Episódio",
                 isUnlocked = true,
-                synopsis = "A negociação do território atinge o ápice e segredos do passado vêm à tona."
+                synopsis = "A disputa de território e lealdade atinge um novo patamar.",
+                badge = "Episódio 3",
+                coverUrl = DEFAULT_COVER_IMAGE_URL
             ),
             Episode(
                 id = "dono_morro_ep_4",
                 episodeNumber = 4,
-                title = "Fogo Cruzado",
-                videoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-                duration = "2:45",
+                title = "Episódio 4",
+                videoUrl = EPISODE_4_URL,
+                duration = "4º Episódio",
                 isUnlocked = true,
-                synopsis = "Quando a trégua é quebrada, cada decisão custa caro para a comunidade."
+                synopsis = "Confrontos inesperados colocam a comunidade em alerta máximo.",
+                badge = "Episódio 4",
+                coverUrl = DEFAULT_COVER_IMAGE_URL
+            ),
+            Episode(
+                id = "dono_morro_ep_5",
+                episodeNumber = 5,
+                title = "Episódio 5",
+                videoUrl = EPISODE_5_URL,
+                duration = "5º Episódio",
+                isUnlocked = true,
+                synopsis = "Decisões arriscadas mudam as regras do jogo no morro.",
+                badge = "Episódio 5",
+                coverUrl = DEFAULT_COVER_IMAGE_URL
+            ),
+            Episode(
+                id = "dono_morro_ep_6",
+                episodeNumber = 6,
+                title = "Episódio 6",
+                videoUrl = EPISODE_6_URL,
+                duration = "6º Episódio",
+                isUnlocked = true,
+                synopsis = "O cerco se fecha e os limites de cada personagem são testados.",
+                badge = "Episódio 6",
+                coverUrl = DEFAULT_COVER_IMAGE_URL
+            ),
+            Episode(
+                id = "dono_morro_ep_7",
+                episodeNumber = 7,
+                title = "Episódio 7",
+                videoUrl = EPISODE_7_URL,
+                duration = "7º Episódio",
+                isUnlocked = true,
+                synopsis = "Reviravolta emocionante que define os rumos da novela.",
+                badge = "Episódio 7",
+                coverUrl = DEFAULT_COVER_IMAGE_URL
             )
         )
     }

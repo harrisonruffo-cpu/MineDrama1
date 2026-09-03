@@ -1,9 +1,5 @@
 package com.example.ui.components
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
-import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -20,16 +16,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ContentCopy
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -45,14 +37,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.R
 import com.example.data.model.Episode
 import com.example.ui.theme.DarkBorder
 import com.example.ui.theme.DarkSurface
-import com.example.ui.theme.DarkSurfaceVariant
-import com.example.ui.theme.EmeraldAccent
 import com.example.ui.theme.GoldPrimary
-import com.example.ui.theme.RedAccent
 import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextPrimary
 import com.example.ui.theme.TextSecondary
@@ -60,50 +51,54 @@ import com.example.ui.theme.TextSecondary
 @Composable
 fun EpisodeCard(
     episode: Episode,
-    isEpisode1: Boolean,
-    onWatch: (Episode) -> Unit,
-    onConfigLink: (() -> Unit)? = null
+    onWatch: (Episode) -> Unit
 ) {
-    val context = LocalContext.current
-    val borderColor = if (isEpisode1) GoldPrimary.copy(alpha = 0.6f) else DarkBorder
+    val isEp1 = episode.episodeNumber == 1
+    val borderColor = if (isEp1) GoldPrimary.copy(alpha = 0.7f) else DarkBorder
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .testTag(if (isEpisode1) "episode_1_card" else "episode_${episode.episodeNumber}_card"),
+            .testTag("episode_${episode.episodeNumber}_card"),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = DarkSurface),
-        border = BorderStroke(if (isEpisode1) 1.5.dp else 1.dp, borderColor)
+        border = BorderStroke(if (isEp1) 1.5.dp else 1.dp, borderColor)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            // Header Image / Banner Area
+            // Header Image com a capa oficial da novela
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(130.dp)
+                    .height(140.dp)
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.bg_dono_morro_banner),
-                    contentDescription = null,
+                // Tenta carregar a capa do Drive via Coil, com fallback para o banner local
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(episode.coverUrl)
+                        .crossfade(true)
+                        .build(),
+                    placeholder = painterResource(id = R.drawable.bg_dono_morro_banner),
+                    error = painterResource(id = R.drawable.bg_dono_morro_banner),
+                    contentDescription = "Capa Dono do Morro",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.matchParentSize()
                 )
 
-                // Dark gradient overlay
+                // Gradiente escuro para legibilidade
                 Box(
                     modifier = Modifier
                         .matchParentSize()
                         .background(
                             Brush.verticalGradient(
                                 colors = listOf(
-                                    Color.Black.copy(alpha = 0.3f),
+                                    Color.Black.copy(alpha = 0.25f),
                                     DarkSurface.copy(alpha = 0.95f)
                                 )
                             )
                         )
                 )
 
-                // Badges top row
+                // Tag do Episódio no topo
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -114,76 +109,51 @@ fun EpisodeCard(
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(6.dp))
-                            .background(Color.Black.copy(alpha = 0.7f))
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                            .background(if (isEp1) GoldPrimary else Color.Black.copy(alpha = 0.75f))
+                            .padding(horizontal = 10.dp, vertical = 5.dp)
                     ) {
                         Text(
                             text = "EPISÓDIO ${episode.episodeNumber}",
-                            color = GoldPrimary,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 11.sp
+                            color = if (isEp1) Color.Black else GoldPrimary,
+                            fontWeight = FontWeight.Black,
+                            fontSize = 12.sp
                         )
                     }
 
-                    if (isEpisode1) {
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(6.dp))
-                                .background(GoldPrimary)
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    imageVector = Icons.Default.Shield,
-                                    contentDescription = null,
-                                    tint = Color.Black,
-                                    modifier = Modifier.size(13.dp)
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    text = "LINK CAMUFLADO",
-                                    color = Color.Black,
-                                    fontWeight = FontWeight.Black,
-                                    fontSize = 11.sp
-                                )
-                            }
-                        }
-                    } else {
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(6.dp))
-                                .background(DarkSurfaceVariant.copy(alpha = 0.8f))
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
-                        ) {
-                            Text(
-                                text = episode.duration,
-                                color = TextSecondary,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Medium
-                            )
-                        }
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(Color.Black.copy(alpha = 0.65f))
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = "Dono do Morro",
+                            color = TextSecondary,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium
+                        )
                     }
                 }
 
-                // Play Button overlay
+                // Play Button Central
                 Box(
                     modifier = Modifier
                         .align(Alignment.Center)
                         .size(46.dp)
                         .clip(CircleShape)
-                        .background(if (isEpisode1) GoldPrimary.copy(alpha = 0.9f) else Color.Black.copy(alpha = 0.6f)),
+                        .background(GoldPrimary.copy(alpha = 0.9f)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.PlayArrow,
                         contentDescription = "Reproduzir",
-                        tint = if (isEpisode1) Color.Black else Color.White,
+                        tint = Color.Black,
                         modifier = Modifier.size(28.dp)
                     )
                 }
             }
 
-            // Body content
+            // Informações do Episódio - O LINK NÃO É EXIBIDO
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -195,26 +165,26 @@ fun EpisodeCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = episode.title,
+                        text = "Dono Do Morro - Episódio ${episode.episodeNumber}",
                         color = TextPrimary,
-                        fontSize = 17.sp,
+                        fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.weight(1f)
                     )
 
                     Text(
-                        text = episode.duration,
-                        color = TextMuted,
+                        text = "Oficial",
+                        color = GoldPrimary,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold
                     )
                 }
 
                 if (episode.synopsis.isNotBlank()) {
-                    Spacer(modifier = Modifier.height(6.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = episode.synopsis,
-                        color = TextSecondary,
+                        color = TextMuted,
                         fontSize = 13.sp,
                         lineHeight = 18.sp,
                         maxLines = 2,
@@ -222,88 +192,17 @@ fun EpisodeCard(
                     )
                 }
 
-                if (isEpisode1) {
-                    Spacer(modifier = Modifier.height(10.dp))
-                    // Visual indicator of camouflaged link destination
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(DarkSurfaceVariant)
-                            .padding(horizontal = 10.dp, vertical = 6.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(7.dp)
-                                        .clip(CircleShape)
-                                        .background(EmeraldAccent)
-                                )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(
-                                    text = "Destino camuflado: ${episode.videoUrl}",
-                                    color = TextMuted,
-                                    fontSize = 11.sp,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
-
-                            Row {
-                                IconButton(
-                                    onClick = {
-                                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                        val clip = ClipData.newPlainText("Link Camuflado Ep 1", episode.videoUrl)
-                                        clipboard.setPrimaryClip(clip)
-                                        Toast.makeText(context, "Link camuflado copiado!", Toast.LENGTH_SHORT).show()
-                                    },
-                                    modifier = Modifier.size(28.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.ContentCopy,
-                                        contentDescription = "Copiar Link",
-                                        tint = TextSecondary,
-                                        modifier = Modifier.size(15.dp)
-                                    )
-                                }
-
-                                if (onConfigLink != null) {
-                                    IconButton(
-                                        onClick = onConfigLink,
-                                        modifier = Modifier.size(28.dp)
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Edit,
-                                            contentDescription = "Editar Link",
-                                            tint = GoldPrimary,
-                                            modifier = Modifier.size(15.dp)
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
                 Spacer(modifier = Modifier.height(14.dp))
 
-                // Watch Button
+                // BOTÃO ASSISTIR COM LINK TOTALMENTE CAMUFLADO (Não redireciona externamente)
                 Button(
                     onClick = { onWatch(episode) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .testTag(if (isEpisode1) "watch_ep_1_action_button" else "watch_ep_${episode.episodeNumber}_action_button"),
+                        .testTag("watch_ep_${episode.episodeNumber}_action_button"),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isEpisode1) GoldPrimary else DarkSurfaceVariant,
-                        contentColor = if (isEpisode1) Color.Black else TextPrimary
+                        containerColor = GoldPrimary,
+                        contentColor = Color.Black
                     ),
                     shape = RoundedCornerShape(10.dp)
                 ) {
@@ -314,7 +213,7 @@ fun EpisodeCard(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = if (isEpisode1) "Assistir Episódio 1 (Link Camuflado)" else "Assistir Episódio ${episode.episodeNumber}",
+                        text = "Assistir Episódio ${episode.episodeNumber}",
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp
                     )

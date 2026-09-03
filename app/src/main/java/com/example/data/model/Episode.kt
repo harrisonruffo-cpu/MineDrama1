@@ -8,5 +8,6 @@ data class Episode(
     val duration: String,
     val isUnlocked: Boolean = true,
     val synopsis: String = "",
-    val badge: String? = null
+    val badge: String? = null,
+    val coverUrl: String? = null
 )
