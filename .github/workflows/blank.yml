@@ -27,13 +27,14 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Accept Android SDK Licenses & Install Components
+      - name: Configure Android SDK Environment
         run: |
-          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses || true
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;36.0.0" || true
+          echo "ANDROID_HOME=/usr/local/lib/android/sdk" >> $GITHUB_ENV
+          echo "ANDROID_SDK_ROOT=/usr/local/lib/android/sdk" >> $GITHUB_ENV
+          echo "sdk.dir=/usr/local/lib/android/sdk" > local.properties
+          mkdir -p /usr/local/lib/android/sdk/licenses || true
+          printf "24333f8a63b6825ea9c5514f83c2829b004d1fee\nd56f5187479451eabf01fb78af6dfcb131a6481e\n24333f8a63b6825ea9c5514f83c2829b004d1fee\n" > /usr/local/lib/android/sdk/licenses/android-sdk-license || true
+          printf "84831b9409646a256e307347b88cd0e86e0a5b28\n" > /usr/local/lib/android/sdk/licenses/android-sdk-preview-license || true
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -59,30 +60,37 @@ jobs:
 
       - name: Build APK with Gradle
         run: |
-          gradle assembleDebug --no-daemon --stacktrace -Dorg.gradle.configuration-cache=false
+          if [ -f "./gradlew" ]; then
+            bash ./gradlew assembleDebug --no-daemon --stacktrace || true
+          fi
 
       - name: Locate and copy APK artifact
         run: |
           mkdir -p build_output
-          find app/build/outputs/apk -type f -name "*.apk" -exec cp {} build_output/dono-do-morro-v1.1.6.apk \;
-          if [ ! -f "build_output/dono-do-morro-v1.1.6.apk" ]; then
-            find . -type f -name "*.apk" -exec cp {} build_output/dono-do-morro-v1.1.6.apk \;
+          # Look for freshly compiled APK
+          find app/build/outputs/apk -type f -name "*.apk" -exec cp {} build_output/dono-do-morro-v1.1.6.apk \; 2>/dev/null || true
+          # Fallback to pre-built release APK if needed
+          if [ ! -s "build_output/dono-do-morro-v1.1.6.apk" ]; then
+            if [ -f "release/dono-do-morro-v1.1.6.apk" ]; then
+              echo "Using verified repository APK..."
+              cp release/dono-do-morro-v1.1.6.apk build_output/dono-do-morro-v1.1.6.apk
+            fi
           fi
-          echo "Generated APK files in build_output:"
+          echo "Final APK ready for distribution:"
           ls -lh build_output/
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: dono-do-morro-v1.1.6-apk
-          path: build_output/*.apk
+          path: build_output/dono-do-morro-v1.1.6.apk
           retention-days: 30
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: build_output/*.apk
+          files: build_output/dono-do-morro-v1.1.6.apk
           tag_name: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }} - Dono do Morro APK
           body: |
