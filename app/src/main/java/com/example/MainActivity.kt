@@ -27,29 +27,19 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LiveTv
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Tv
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ScrollableTabRow
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRowDefaults
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -63,6 +53,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -99,12 +90,8 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DonoDoMorroApp() {
-    val context = LocalContext.current
-    val episodes = remember { DonoDoMorroManager.getEpisodes(context) }
+    val episodes = remember { DonoDoMorroManager.getEpisodes() }
     var selectedEpisodeToWatch by remember { mutableStateOf<Episode?>(null) }
-    var selectedTabIndex by remember { mutableIntStateOf(0) }
-
-    val navTabs = listOf("Novelas", "Episódios")
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -117,156 +104,127 @@ fun DonoDoMorroApp() {
                     titleContentColor = TextPrimary
                 ),
                 title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Image(
-                            painter = painterResource(id = R.drawable.ic_dono_morro_logo),
-                            contentDescription = "Logo",
-                            modifier = Modifier
-                                .size(32.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Column {
-                            Text(
-                                text = "DONO DO MORRO",
-                                fontWeight = FontWeight.Black,
-                                fontSize = 16.sp,
-                                letterSpacing = 1.sp,
-                                color = GoldPrimary
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_dono_morro_logo),
+                                contentDescription = "Logo",
+                                modifier = Modifier
+                                    .size(34.dp)
+                                    .clip(RoundedCornerShape(8.dp))
                             )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column {
+                                Text(
+                                    text = "MINE NOVELAS",
+                                    fontWeight = FontWeight.Black,
+                                    fontSize = 17.sp,
+                                    letterSpacing = 1.sp,
+                                    color = GoldPrimary
+                                )
+                                Text(
+                                    text = "DONO DO MORRO",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 11.sp,
+                                    color = TextSecondary,
+                                    letterSpacing = 0.5.sp
+                                )
+                            }
+                        }
+
+                        // Badge Temática de Gênero
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(RedAccent)
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
                             Text(
-                                text = "NOVELA EXCLUSIVA",
-                                fontWeight = FontWeight.SemiBold,
-                                fontSize = 10.sp,
-                                color = TextMuted,
+                                text = "AÇÃO • DRAMA • FAVELA",
+                                color = Color.White,
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.Black,
                                 letterSpacing = 0.5.sp
                             )
                         }
                     }
                 }
             )
-        },
-        bottomBar = {
-            NavigationBar(
-                modifier = Modifier.windowInsetsPadding(WindowInsets.navigationBars),
-                containerColor = DarkSurface,
-                tonalElevation = 8.dp
-            ) {
-                NavigationBarItem(
-                    selected = selectedTabIndex == 0,
-                    onClick = { selectedTabIndex = 0 },
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Default.Tv,
-                            contentDescription = "Aba Novelas"
-                        )
-                    },
-                    label = {
-                        Text(
-                            text = "Novelas",
-                            fontWeight = if (selectedTabIndex == 0) FontWeight.Bold else FontWeight.Normal
-                        )
-                    },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = Color.Black,
-                        selectedTextColor = GoldPrimary,
-                        indicatorColor = GoldPrimary,
-                        unselectedIconColor = TextSecondary,
-                        unselectedTextColor = TextSecondary
-                    ),
-                    modifier = Modifier.testTag("tab_novelas")
-                )
-
-                NavigationBarItem(
-                    selected = selectedTabIndex == 1,
-                    onClick = { selectedTabIndex = 1 },
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Default.LiveTv,
-                            contentDescription = "Aba Episódios"
-                        )
-                    },
-                    label = {
-                        Text(
-                            text = "Episódios (7)",
-                            fontWeight = if (selectedTabIndex == 1) FontWeight.Bold else FontWeight.Normal
-                        )
-                    },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = Color.Black,
-                        selectedTextColor = GoldPrimary,
-                        indicatorColor = GoldPrimary,
-                        unselectedIconColor = TextSecondary,
-                        unselectedTextColor = TextSecondary
-                    ),
-                    modifier = Modifier.testTag("tab_episodios")
-                )
-            }
         }
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
-            contentPadding = PaddingValues(bottom = 24.dp)
+                .padding(innerPadding)
+                .windowInsetsPadding(WindowInsets.navigationBars),
+            contentPadding = PaddingValues(bottom = 32.dp)
         ) {
-            // Se estiver na Aba Novelas (Visão Geral da Novela com Capa Oficial)
-            if (selectedTabIndex == 0) {
-                item {
-                    NovelaOverviewHero(
-                        coverUrl = DonoDoMorroManager.DEFAULT_COVER_IMAGE_URL,
-                        onWatchEpisode1 = {
-                            val ep1 = episodes.firstOrNull { it.episodeNumber == 1 }
-                            if (ep1 != null) {
-                                selectedEpisodeToWatch = ep1
-                            }
-                        },
-                        onViewAllEpisodes = {
-                            selectedTabIndex = 1
+            // MENU ESTILO MINE NOVELAS - CAPA PRINCIPAL CENTRALIZADA
+            item {
+                MineNovelaCentralHero(
+                    coverUrl = DonoDoMorroManager.DEFAULT_COVER_DRIVE_URL,
+                    onWatchEpisode1 = {
+                        val ep1 = episodes.firstOrNull { it.episodeNumber == 1 }
+                        if (ep1 != null) {
+                            selectedEpisodeToWatch = ep1
                         }
-                    )
-                }
+                    }
+                )
+            }
 
-                // Resumo da Novela e Informações
-                item {
-                    NovelaDetailsCard(totalEpisodes = episodes.size)
-                }
+            // CABEÇALHO DA LISTA DE EPISÓDIOS (ABAIXO DA CAPA PRINCIPAL)
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 12.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(
+                                text = "Episódios da Novela",
+                                color = TextPrimary,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Black
+                            )
+                            Text(
+                                text = "7 Episódios • Temporada Completa",
+                                color = GoldPrimary,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
 
-                // Atalho rápido para assistir os episódios
-                item {
-                    Text(
-                        text = "Episódios da Novela",
-                        color = TextPrimary,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 10.dp)
-                    )
-                }
-            } else {
-                // Aba Episódios: Cabeçalho direto
-                item {
-                    Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
-                        Text(
-                            text = "Novela Dono Do Morro",
-                            color = GoldPrimary,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Black
-                        )
-                        Text(
-                            text = "Todos os 7 episódios disponíveis. Reprodução direta sem sair do aplicativo.",
-                            color = TextSecondary,
-                            fontSize = 13.sp,
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(DarkSurfaceVariant)
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Text(
+                                text = "HD • Sem Anúncios",
+                                color = TextSecondary,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
                     }
                 }
             }
 
-            // Lista oficial dos 7 Episódios do Dono Do Morro
-            items(episodes, key = { it.id }) { ep ->
-                Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+            // OS 7 EPISÓDIOS DA NOVELA COM SINOPSE E LINKS CAMUFLADOS
+            items(episodes, key = { it.id }) { episode ->
+                Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
                     EpisodeCard(
-                        episode = ep,
+                        episode = episode,
                         onWatch = { selectedEpisodeToWatch = it }
                     )
                 }
@@ -274,193 +232,208 @@ fun DonoDoMorroApp() {
         }
     }
 
-    // Reprodutor interno - Nenhum redirecionamento externo
-    selectedEpisodeToWatch?.let { ep ->
+    // PLAYER REPRODUÇÃO DE LINKS WEB ONLINE AVANÇADO (SEM ERRO 152 / SEM LINKS EXTERNOS)
+    selectedEpisodeToWatch?.let { currentEpisode ->
         VideoPlayerDialog(
-            episode = ep,
+            episode = currentEpisode,
+            allEpisodes = episodes,
+            onEpisodeSelected = { nextEpisode ->
+                selectedEpisodeToWatch = nextEpisode
+            },
             onDismiss = { selectedEpisodeToWatch = null }
         )
     }
 }
 
+/**
+ * Menu Estilo Mine Novelas com a Capa Principal em Destaque Central
+ */
 @Composable
-fun NovelaOverviewHero(
+fun MineNovelaCentralHero(
     coverUrl: String,
-    onWatchEpisode1: () -> Unit,
-    onViewAllEpisodes: () -> Unit
+    onWatchEpisode1: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        shape = RoundedCornerShape(20.dp),
+            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .testTag("mine_novelas_hero_card"),
+        shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(containerColor = DarkSurface),
-        border = BorderStroke(1.dp, DarkBorder)
+        border = BorderStroke(1.5.dp, GoldPrimary.copy(alpha = 0.6f))
     ) {
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(300.dp)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Capa da Novela Dono Do Morro
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(coverUrl)
-                    .crossfade(true)
-                    .build(),
-                placeholder = painterResource(id = R.drawable.bg_dono_morro_banner),
-                error = painterResource(id = R.drawable.bg_dono_morro_banner),
-                contentDescription = "Capa da Novela Dono Do Morro",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.matchParentSize()
-            )
-
-            // Gradiente para destaque dos textos
-            Box(
+            // PÔSTER CENTRAL DA NOVELA (Formato Pôster Vertical Estilo Mini Novela)
+            Card(
                 modifier = Modifier
-                    .matchParentSize()
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                Color.Black.copy(alpha = 0.2f),
-                                Color.Black.copy(alpha = 0.75f),
-                                DarkSurface.copy(alpha = 0.98f)
-                            )
-                        )
-                    )
-            )
-
-            // Conteúdo
-            Column(
-                modifier = Modifier
-                    .matchParentSize()
-                    .padding(18.dp),
-                verticalArrangement = Arrangement.Bottom
+                    .width(220.dp)
+                    .height(310.dp),
+                shape = RoundedCornerShape(16.dp),
+                border = BorderStroke(2.dp, GoldPrimary),
+                elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(coverUrl)
+                            .crossfade(true)
+                            .build(),
+                        placeholder = painterResource(id = R.drawable.bg_dono_morro_banner),
+                        error = painterResource(id = R.drawable.bg_dono_morro_banner),
+                        contentDescription = "Capa Oficial Dono do Morro",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+
+                    // Sombra gradiente inferior no pôster
                     Box(
                         modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color.Transparent,
+                                        Color.Black.copy(alpha = 0.85f)
+                                    )
+                                )
+                            )
+                    )
+
+                    // Badge de Novela Completa sobre a capa
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(8.dp)
                             .clip(RoundedCornerShape(4.dp))
                             .background(RedAccent)
-                            .padding(horizontal = 8.dp, vertical = 3.dp)
+                            .padding(horizontal = 6.dp, vertical = 3.dp)
                     ) {
                         Text(
-                            text = "NOVELA EXCLUSIVA",
+                            text = "COMPLETA",
                             color = Color.White,
-                            fontSize = 11.sp,
+                            fontSize = 10.sp,
                             fontWeight = FontWeight.Black
                         )
                     }
 
-                    Box(
+                    // Título no rodapé da capa
+                    Column(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(DarkSurfaceVariant.copy(alpha = 0.9f))
-                            .padding(horizontal = 8.dp, vertical = 3.dp)
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = 12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "7 EPISÓDIOS COMPLETOS",
+                            text = "DONO DO MORRO",
                             color = GoldPrimary,
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.Black,
+                            letterSpacing = 1.sp,
+                            textAlign = TextAlign.Center
+                        )
+                        Text(
+                            text = "7 Episódios",
+                            color = TextSecondary,
                             fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Medium
                         )
                     }
                 }
+            }
 
-                Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-                Text(
-                    text = "Dono Do Morro",
-                    color = TextPrimary,
-                    fontSize = 26.sp,
-                    fontWeight = FontWeight.Black,
-                    letterSpacing = 0.5.sp
-                )
-
-                Text(
-                    text = "A trama intensa pelas ruas da comunidade. Escolha o episódio e assista diretamente dentro do aplicativo.",
-                    color = TextSecondary,
-                    fontSize = 12.sp,
-                    lineHeight = 16.sp,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
-
-                Spacer(modifier = Modifier.height(14.dp))
-
-                // BOTÃO ASSISTIR EPISÓDIO 1 (Link camuflado, sem link visível)
-                Button(
-                    onClick = onWatchEpisode1,
+            // Badges Estilo Ação Drama Favela
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp)
-                        .testTag("watch_ep_1_hero_button"),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = GoldPrimary,
-                        contentColor = Color.Black
-                    ),
-                    shape = RoundedCornerShape(12.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(RedAccent.copy(alpha = 0.2f))
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.PlayArrow,
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Assistir Episódio 1",
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Black
+                        text = "AÇÃO",
+                        color = RedAccent,
+                        fontWeight = FontWeight.Black,
+                        fontSize = 11.sp
+                    )
+                }
+
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(GoldPrimary.copy(alpha = 0.2f))
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        text = "DRAMA",
+                        color = GoldPrimary,
+                        fontWeight = FontWeight.Black,
+                        fontSize = 11.sp
+                    )
+                }
+
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(DarkSurfaceVariant)
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        text = "FAVELA",
+                        color = TextPrimary,
+                        fontWeight = FontWeight.Black,
+                        fontSize = 11.sp
                     )
                 }
             }
-        }
-    }
-}
 
-@Composable
-fun NovelaDetailsCard(totalEpisodes: Int) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = DarkSurface),
-        border = BorderStroke(1.dp, DarkBorder)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Sinopse Geral da Novela
             Text(
-                text = "Sinopse da Novela",
-                color = GoldPrimary,
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(
-                text = "Dono Do Morro acompanha a rotina, os conflitos e as decisões decisivas no alto do morro. Todos os 7 episódios foram adicionados e são executados no player nativo do aplicativo.",
+                text = "Nas vielas e no topo da comunidade, a disputa pelo comando coloca lealdades à prova. Um conflito repleto de reviravoltas, perseguições e escolhas onde apenas um pode ser o Dono do Morro.",
                 color = TextSecondary,
                 fontSize = 13.sp,
-                lineHeight = 18.sp
+                lineHeight = 18.sp,
+                textAlign = TextAlign.Center,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis
             )
-            Spacer(modifier = Modifier.height(10.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Gênero: Drama / Ação",
-                    color = TextMuted,
-                    fontSize = 12.sp
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // BOTÃO PRINCIPAL COM LINK CAMUFLADO (Sem mostrar link, abre player web avançado)
+            Button(
+                onClick = onWatchEpisode1,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .testTag("watch_ep_1_central_button"),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = GoldPrimary,
+                    contentColor = Color.Black
                 )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.PlayArrow,
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Total: $totalEpisodes Episódios",
-                    color = GoldPrimary,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold
+                    text = "Assistir Novela • Episódio 1",
+                    fontWeight = FontWeight.Black,
+                    fontSize = 15.sp
                 )
             }
         }

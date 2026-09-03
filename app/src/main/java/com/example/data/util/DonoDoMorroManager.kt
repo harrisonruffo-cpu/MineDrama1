@@ -1,18 +1,13 @@
 package com.example.data.util
 
-import android.content.Context
-import android.content.SharedPreferences
 import com.example.data.model.Episode
 
 object DonoDoMorroManager {
-    private const val PREFS_NAME = "dono_do_morro_prefs"
-
-    // Link oficial da capa fornecido pelo usuário (Google Drive)
+    // Capa oficial fornecida pelo usuário no Google Drive (ID: 1ngEUH5l0R0c58zZ-y26kTDqBwFv5dr64)
+    const val DEFAULT_COVER_DRIVE_URL = "https://lh3.googleusercontent.com/u/0/d/1ngEUH5l0R0c58zZ-y26kTDqBwFv5dr64"
     const val DEFAULT_COVER_DRIVE_VIEW_URL = "https://drive.google.com/file/d/1ngEUH5l0R0c58zZ-y26kTDqBwFv5dr64/view?usp=drivesdk"
-    // URL direta para imagem no Coil / Glide
-    const val DEFAULT_COVER_IMAGE_URL = "https://lh3.googleusercontent.com/u/0/d/1ngEUH5l0R0c58zZ-y26kTDqBwFv5dr64"
 
-    // Links camuflados dos Episódios
+    // Links camuflados dos 7 Episódios fornecidos pelo usuário
     const val EPISODE_1_URL = "https://youtu.be/u0WXCHgZxaY?is=bvomW3X72476KQDG"
     const val EPISODE_2_URL = "https://youtu.be/nfVYJ6jFvRA?is=u2IbhITwKelIq86j"
     const val EPISODE_3_URL = "https://youtu.be/nfVYJ6jFvRA?is=wekmdgSbpDXpLgtN"
@@ -21,84 +16,84 @@ object DonoDoMorroManager {
     const val EPISODE_6_URL = "https://youtu.be/-dQl0VDN07c?is=-UeFZt_oH8dgm4Jf"
     const val EPISODE_7_URL = "https://youtu.be/4KE0NczMVwI?is=Wex5GdY-Z91WjSLu"
 
-    fun getEpisodes(context: Context? = null): List<Episode> {
+    fun getEpisodes(): List<Episode> {
         return listOf(
             Episode(
                 id = "dono_morro_ep_1",
                 episodeNumber = 1,
-                title = "Episódio 1",
+                title = "A Chegada no Morro",
                 videoUrl = EPISODE_1_URL,
-                duration = "1º Episódio",
-                isUnlocked = true,
-                synopsis = "A chegada ao morro e o primeiro encontro tenso que inicia a história.",
-                badge = "Episódio 1",
-                coverUrl = DEFAULT_COVER_IMAGE_URL
+                duration = "Episódio 1",
+                genre = "Ação • Drama • Favela",
+                synopsis = "O início da trama tensa nas vielas. Um primeiro encontro inesperado muda o destino do morro e acende a disputa de poder entre as facções rivais.",
+                badge = "Episódio 1 • Estreia",
+                coverUrl = DEFAULT_COVER_DRIVE_URL
             ),
             Episode(
                 id = "dono_morro_ep_2",
                 episodeNumber = 2,
-                title = "Episódio 2",
+                title = "Linha de Frente",
                 videoUrl = EPISODE_2_URL,
-                duration = "2º Episódio",
-                isUnlocked = true,
-                synopsis = "Novas alianças e segredos começam a ser revelados.",
+                duration = "Episódio 2",
+                genre = "Ação • Favela",
+                synopsis = "A tensão aumenta na comunidade. As alianças são testadas após uma operação surpresa e os moradores precisam tomar partido no confronto.",
                 badge = "Episódio 2",
-                coverUrl = DEFAULT_COVER_IMAGE_URL
+                coverUrl = DEFAULT_COVER_DRIVE_URL
             ),
             Episode(
                 id = "dono_morro_ep_3",
                 episodeNumber = 3,
-                title = "Episódio 3",
+                title = "O Cerco Fechado",
                 videoUrl = EPISODE_3_URL,
-                duration = "3º Episódio",
-                isUnlocked = true,
-                synopsis = "A disputa de território e lealdade atinge um novo patamar.",
+                duration = "Episódio 3",
+                genre = "Drama • Favela",
+                synopsis = "Segredos do passado vêm à tona no alto da colina. Uma revelação comprometedora coloca em risco a liderança e a lealdade de quem comanda a área.",
                 badge = "Episódio 3",
-                coverUrl = DEFAULT_COVER_IMAGE_URL
+                coverUrl = DEFAULT_COVER_DRIVE_URL
             ),
             Episode(
                 id = "dono_morro_ep_4",
                 episodeNumber = 4,
-                title = "Episódio 4",
+                title = "Traição nas Vielas",
                 videoUrl = EPISODE_4_URL,
-                duration = "4º Episódio",
-                isUnlocked = true,
-                synopsis = "Confrontos inesperados colocam a comunidade em alerta máximo.",
+                duration = "Episódio 4",
+                genre = "Ação • Tensão",
+                synopsis = "Uma quebra de confiança abala as estruturas do morro. Ninguém sabe em quem confiar quando uma emboscada na madrugada deixa feridos.",
                 badge = "Episódio 4",
-                coverUrl = DEFAULT_COVER_IMAGE_URL
+                coverUrl = DEFAULT_COVER_DRIVE_URL
             ),
             Episode(
                 id = "dono_morro_ep_5",
                 episodeNumber = 5,
-                title = "Episódio 5",
+                title = "A Virada do Jogo",
                 videoUrl = EPISODE_5_URL,
-                duration = "5º Episódio",
-                isUnlocked = true,
-                synopsis = "Decisões arriscadas mudam as regras do jogo no morro.",
+                duration = "Episódio 5",
+                genre = "Drama • Ação",
+                synopsis = "Um plano arriscado é colocado em prática para retomar o controle. O conflito direto nas esquinas exige coragem e sacrifícios dramáticos.",
                 badge = "Episódio 5",
-                coverUrl = DEFAULT_COVER_IMAGE_URL
+                coverUrl = DEFAULT_COVER_DRIVE_URL
             ),
             Episode(
                 id = "dono_morro_ep_6",
                 episodeNumber = 6,
-                title = "Episódio 6",
+                title = "Fogo Cruzado",
                 videoUrl = EPISODE_6_URL,
-                duration = "6º Episódio",
-                isUnlocked = true,
-                synopsis = "O cerco se fecha e os limites de cada personagem são testados.",
+                duration = "Episódio 6",
+                genre = "Ação • Favela",
+                synopsis = "A grande batalha pelo domínio do território atinge o ponto culminante. Decisões irreversíveis são tomadas em uma perseguição eletrizante.",
                 badge = "Episódio 6",
-                coverUrl = DEFAULT_COVER_IMAGE_URL
+                coverUrl = DEFAULT_COVER_DRIVE_URL
             ),
             Episode(
                 id = "dono_morro_ep_7",
                 episodeNumber = 7,
-                title = "Episódio 7",
+                title = "O Novo Dono do Morro",
                 videoUrl = EPISODE_7_URL,
-                duration = "7º Episódio",
-                isUnlocked = true,
-                synopsis = "Reviravolta emocionante que define os rumos da novela.",
-                badge = "Episódio 7",
-                coverUrl = DEFAULT_COVER_IMAGE_URL
+                duration = "Episódio 7",
+                genre = "Drama • Desfecho",
+                synopsis = "O desfecho épico da novela. O destino dos personagens é selado em meio a reviravoltas emocionantes que definirão quem realmente manda no morro.",
+                badge = "Episódio 7 • Final",
+                coverUrl = DEFAULT_COVER_DRIVE_URL
             )
         )
     }

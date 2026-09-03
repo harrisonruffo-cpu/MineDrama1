@@ -6,7 +6,7 @@ data class Episode(
     val title: String,
     val videoUrl: String,
     val duration: String,
-    val isUnlocked: Boolean = true,
+    val genre: String = "Ação • Drama • Favela",
     val synopsis: String = "",
     val badge: String? = null,
     val coverUrl: String? = null
