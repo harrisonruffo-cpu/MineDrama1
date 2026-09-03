@@ -9,6 +9,9 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-apk:
     name: Build Android APK
@@ -18,11 +21,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Accept Android SDK Licenses
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses || true
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -34,17 +44,35 @@ jobs:
           touch .env
           echo "GEMINI_API_KEY=" >> .env
           if [ -f "debug.keystore.base64" ]; then
-            base64 -d debug.keystore.base64 > debug.keystore || true
+            base64 -d debug.keystore.base64 > debug.keystore 2>/dev/null || base64 --decode debug.keystore.base64 > debug.keystore 2>/dev/null || true
           fi
+          if [ ! -f "debug.keystore" ]; then
+            echo "Generating debug keystore..."
+            keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+          fi
+          mkdir -p ~/.android
+          cp debug.keystore ~/.android/debug.keystore || true
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew || true
 
       - name: Build APK with Gradle
-        run: gradle assembleDebug --stacktrace
+        run: |
+          if [ -f "./gradlew" ]; then
+            ./gradlew assembleDebug --stacktrace --no-daemon
+          else
+            gradle assembleDebug --stacktrace --no-daemon
+          fi
 
       - name: Locate and copy APK artifact
         run: |
           mkdir -p build_output
-          find app/build/outputs/apk/debug -name "*.apk" -exec cp {} build_output/dono-do-morro-v1.1.6.apk \;
-          ls -la build_output/
+          find app/build/outputs/apk -name "*.apk" -exec cp {} build_output/dono-do-morro-v1.1.6.apk \;
+          if [ ! -f "build_output/dono-do-morro-v1.1.6.apk" ]; then
+            find . -name "*.apk" -exec cp {} build_output/dono-do-morro-v1.1.6.apk \;
+          fi
+          echo "Generated APK files:"
+          ls -lh build_output/
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
@@ -63,6 +91,6 @@ jobs:
           body: |
             ### Dono do Morro v1.1.6
             - Versão atualizada com link camuflado configurado para o Episódio 1.
-            - Baixe o APK em anexo e instale no seu dispositivo Android.
+            - Baixe o arquivo APK em anexo e instale no seu dispositivo Android.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
